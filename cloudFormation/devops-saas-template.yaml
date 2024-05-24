@@ -5,7 +5,7 @@ Parameters:
   SystemName:
     Type: String
     Default: devops-saas-cloudformation-0524
-    Description: 'Prefix for all resources'
+    Description: 'Prefix for all resources '
 
 Resources:
   VPC:
