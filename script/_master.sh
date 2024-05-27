@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 클러스터 이름 지정
-export CLUSTER_NAME="devops-saas-eks-cluster-0524"
+export CLUSTER_NAME="devops-saas-cloudformation-0527-eks-cluster"
 
 echo "Starting the deployment process..."
 

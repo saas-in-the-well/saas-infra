@@ -169,7 +169,7 @@ Resources:
     Type: 'AWS::EKS::Cluster'
     Properties:
       Name: !Sub '${SystemName}-eks-cluster'
-      Version: '1.30'
+      Version: '1.29'
       RoleArn: !Ref ClusterRoleArn
       ResourcesVpcConfig:
         SubnetIds:
@@ -254,14 +254,6 @@ Resources:
       Tags:
         Name: !Sub '${SystemName}-node-group-3'
 
-  CoreDNSAddOn:
-    Type: 'AWS::EKS::Addon'
-    Properties:
-      AddonName: 'coredns'
-      ClusterName: !Ref EKSCluster
-      AddonVersion: 'v1.11.1-eksbuild.9'
-      ResolveConflicts: 'OVERWRITE'
-
   KubeProxyAddOn:
     Type: 'AWS::EKS::Addon'
     Properties:
@@ -277,6 +269,34 @@ Resources:
       ClusterName: !Ref EKSCluster
       AddonVersion: 'v1.18.1-eksbuild.3'
       ResolveConflicts: 'OVERWRITE'
+    DependsOn: KubeProxyAddOn
+
+  CoreDNSAddOn:
+    Type: 'AWS::EKS::Addon'
+    Properties:
+      AddonName: 'coredns'
+      ClusterName: !Ref EKSCluster
+      AddonVersion: 'v1.11.1-eksbuild.9'
+      ResolveConflicts: 'OVERWRITE'
+    DependsOn: VPCCNIAddOn
+
+  CloudWatchObservabilityAddOn:
+    Type: 'AWS::EKS::Addon'
+    Properties:
+      AddonName: 'amazon-cloudwatch-observability'
+      ClusterName: !Ref EKSCluster
+      AddonVersion: 'v1.6.0-eksbuild.1'
+      ResolveConflicts: 'OVERWRITE'
+    DependsOn: NodeGroup3
+
+  EBSCSIAddOn:
+    Type: 'AWS::EKS::Addon'
+    Properties:
+      AddonName: 'aws-ebs-csi-driver'
+      ClusterName: !Ref EKSCluster
+      AddonVersion: 'v1.31.0-eksbuild.1'
+      ResolveConflicts: 'OVERWRITE'
+    DependsOn: NodeGroup3
 
 Outputs:
   VPCId:
