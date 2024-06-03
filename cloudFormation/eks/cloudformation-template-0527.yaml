@@ -4,7 +4,7 @@ Description: 'AWS CloudFormation Template to create a VPC with EKS Cluster and N
 Parameters:
   SystemName:
     Type: String
-    Default: devops-saas-cloudformation-0527
+    Default: devops-saas-cloudformation-0603
     Description: 'Prefix for all resources'
 
   ClusterRoleArn:
