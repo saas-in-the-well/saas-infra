@@ -28,3 +28,9 @@ chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/after-set
 ./after-setting.sh
 
 echo "All deployments completed successfully."
+
+
+
+# 인증서 관련 설치.. -> 이것도 파일로 분리해서 develop 안에 넣어보자
+#kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.crds.yaml
+#kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
