@@ -2,6 +2,7 @@
 set -e
 
 export CLUSTER_NAME="${PREFIX_NAME}${NOW_DATE}-eks-cluster"
+export PREFIX_NAME="devops-saas-cloudformation"
 
 echo "Updating AWS EKS kubeconfig for cluster: $CLUSTER_NAME..."
 
@@ -15,9 +16,17 @@ kubectl create namespace argocd
 kubectl create namespace monitoring
 kubectl create namespace cert-manager
 
-# 노드에 레이블 추가 -> kube manifest 파일로 변경 (node-label.yaml)
 echo "Creating label nodes..."
-#todo : ip-10-0-4-45.ap-northeast-2.compute.internal -> node 그룹명이아닌 생성된 노드 이름으로 수정해야함.
-kubectl label nodes ${PREFIX_NAME}-ManagementNodeGroup node-type=management
-kubectl label nodes ${PREFIX_NAME}-ApplicationNodeGroup node-type=application
+# Management 노드 그룹의 노드 라벨 추가
+management_node_group_label="eks.amazonaws.com/nodegroup=${PREFIX_NAME}ManagementNodeGroup"
+kubectl get nodes -l "$management_node_group_label" -o custom-columns=NAME:.metadata.name | tail -n +2 | while read -r node; do
+    echo "Labeling node: $node with node-type=management"
+    kubectl label nodes "$node" node-type=management --overwrite
+done
 
+# Application 노드 그룹의 노드 라벨 추가
+application_node_group_label="eks.amazonaws.com/nodegroup=${PREFIX_NAME}ApplicationNodeGroup"
+kubectl get nodes -l "$application_node_group_label" -o custom-columns=NAME:.metadata.name | tail -n +2 | while read -r node; do
+    echo "Labeling node: $node with node-type=application"
+    kubectl label nodes "$node" node-type=application --overwrite
+done
