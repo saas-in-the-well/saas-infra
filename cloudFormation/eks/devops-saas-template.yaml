@@ -208,6 +208,8 @@ Resources:
         DesiredSize: 1
         MinSize: 1
         MaxSize: 2
+      Labels:
+        node-type: management
       DiskSize: 20
       InstanceTypes: ['t3.medium']
       AmiType: 'AL2_x86_64'
@@ -230,6 +232,8 @@ Resources:
         DesiredSize: 2
         MinSize: 1
         MaxSize: 3
+      Labels:
+        node-type: application
       DiskSize: 20
       InstanceTypes: ['t3.small']
       AmiType: 'AL2_x86_64'
