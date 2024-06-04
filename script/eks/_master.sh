@@ -14,14 +14,8 @@ chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/before-se
 chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/argoCD.sh
 ./argoCD.sh
 
-#chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/nginx-ingress.sh
-#./nginx-ingress.sh
 
-#chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/grafana.sh
-#./grafana.sh
-
-
-sleep 15
+sleep 10
 
 # 후처리
 chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/after-setting.sh
@@ -30,7 +24,7 @@ chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/eks/after-set
 echo "All deployments completed successfully."
 
 
+sleep 10
 
-# 인증서 관련 설치.. -> 이것도 파일로 분리해서 develop 안에 넣어보자
-#kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.crds.yaml
-#kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
+###### Grafana port-forward
+#kubectl port-forward service/grafana 3000:3000 --namespace=monitoring

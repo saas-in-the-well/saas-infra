@@ -16,17 +16,3 @@ kubectl create namespace argocd
 kubectl create namespace monitoring
 kubectl create namespace cert-manager
 
-echo "Creating label nodes..."
-# Management 노드 그룹의 노드 라벨 추가
-management_node_group_label="eks.amazonaws.com/nodegroup=${PREFIX_NAME}ManagementNodeGroup"
-kubectl get nodes -l "$management_node_group_label" -o custom-columns=NAME:.metadata.name | tail -n +2 | while read -r node; do
-    echo "Labeling node: $node with node-type=management"
-    kubectl label nodes "$node" node-type=management --overwrite
-done
-
-# Application 노드 그룹의 노드 라벨 추가
-application_node_group_label="eks.amazonaws.com/nodegroup=${PREFIX_NAME}ApplicationNodeGroup"
-kubectl get nodes -l "$application_node_group_label" -o custom-columns=NAME:.metadata.name | tail -n +2 | while read -r node; do
-    echo "Labeling node: $node with node-type=application"
-    kubectl label nodes "$node" node-type=application --overwrite
-done
