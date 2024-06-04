@@ -21844,6 +21844,8 @@ spec:
                 path: ca.crt
             optional: true
             secretName: argocd-dex-server-tls
+      nodeSelector:
+        node-type: management
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -21930,6 +21932,8 @@ spec:
                 path: ca.crt
             optional: true
             secretName: argocd-repo-server-tls
+      nodeSelector:
+        node-type: management
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22010,6 +22014,8 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: argocd-redis
+      nodeSelector:
+        node-type: management
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22331,6 +22337,8 @@ spec:
           name: var-files
         - emptyDir: {}
           name: plugins
+      nodeSelector:
+        node-type: management
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22947,6 +22955,8 @@ spec:
                 path: ca.crt
             optional: true
             secretName: argocd-repo-server-tls
+      nodeSelector:
+        node-type: management
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
