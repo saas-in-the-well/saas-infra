@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'AWS CloudFormation Template to create a VPC with EKS Cluster and Node Groups'
+Description: 'SaaS Control Plain template'
 
 Parameters:
   SystemName:
@@ -28,6 +28,8 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-eks-role'
 
@@ -49,6 +51,8 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
         - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-eks-node-role'
 
@@ -60,6 +64,8 @@ Resources:
       EnableDnsHostnames: 'true'
       InstanceTenancy: 'default'
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-vpc'
 
@@ -67,6 +73,8 @@ Resources:
     Type: 'AWS::EC2::InternetGateway'
     Properties:
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-InternetGateway'
 
@@ -84,6 +92,8 @@ Resources:
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
       MapPublicIpOnLaunch: 'true'
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-PublicSubnet1'
 
@@ -95,6 +105,8 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       MapPublicIpOnLaunch: 'true'
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-PublicSubnet2'
 
@@ -105,6 +117,8 @@ Resources:
       CidrBlock: '10.0.3.0/24'
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-PrivateSubnet1'
 
@@ -115,6 +129,8 @@ Resources:
       CidrBlock: '10.0.4.0/24'
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-PrivateSubnet2'
 
@@ -123,6 +139,8 @@ Resources:
     Properties:
       Domain: vpc
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-NatGatewayEIP'
 
@@ -132,6 +150,8 @@ Resources:
       AllocationId: !GetAtt NatGatewayEIP.AllocationId
       SubnetId: !Ref PublicSubnet1
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-NatGateway'
 
@@ -140,6 +160,8 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-PublicRouteTable'
 
@@ -167,6 +189,8 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       Tags:
+        - Key: Type
+          Value: 'Control-Plain'
         - Key: Name
           Value: !Sub '${SystemName}-PrivateRouteTable'
 
@@ -247,32 +271,10 @@ Resources:
       AmiType: 'AL2_x86_64'
       CapacityType: 'SPOT'
       Tags:
-        Name: !Sub '${SystemNameNoDate}-ManagementNodeGroup'
-
-  ApplicationNodeGroup:
-    Type: 'AWS::EKS::Nodegroup'
-    DependsOn: EKSCluster
-    Properties:
-      ClusterName: !Ref EKSCluster
-      NodegroupName: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
-      NodeRole: !GetAtt DevOpsSaasEKSNodeRole.Arn
-      Subnets:
-        - !Ref PublicSubnet1
-        - !Ref PublicSubnet2
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-      ScalingConfig:
-        DesiredSize: 2
-        MinSize: 1
-        MaxSize: 3
-      Labels:
-        node-type: application
-      DiskSize: 20
-      InstanceTypes: ['t3.small']
-      AmiType: 'AL2_x86_64'
-      CapacityType: 'SPOT'
-      Tags:
-        Name: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
+        - Key: Type
+          Value: 'Control-Plain'
+        - Key: Name
+          Value: !Sub '${SystemNameNoDate}-ManagementNodeGroup'
 
   KubeProxyAddOn:
     Type: 'AWS::EKS::Addon'
@@ -307,7 +309,7 @@ Resources:
       ClusterName: !Ref EKSCluster
       AddonVersion: 'v1.6.0-eksbuild.1'
       ResolveConflicts: 'OVERWRITE'
-    DependsOn: ApplicationNodeGroup
+    DependsOn: ManagementNodeGroup
 
   EBSCSIAddOn:
     Type: 'AWS::EKS::Addon'
@@ -316,7 +318,7 @@ Resources:
       ClusterName: !Ref EKSCluster
       AddonVersion: 'v1.31.0-eksbuild.1'
       ResolveConflicts: 'OVERWRITE'
-    DependsOn: ApplicationNodeGroup
+    DependsOn: ManagementNodeGroup
 
 Outputs:
   EksClusterRole:

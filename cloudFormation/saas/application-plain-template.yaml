@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SaaS Application Plain template'
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: devops-saas-cloudformation-0603
+    Description: 'Prefix for all resources'
+
+  SystemNameNoDate:
+    Type: String
+    Default: devops-saas-cloudformation
+    Description: 'Prefix for all resources'
+
+  TenantName:
+    Type: String
+    Default: TenantAAA
+    Description: 'Tenanat Name'
+
+Resources:
+
+  DevOpsSaasEKSNodeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub '${SystemName}-${TenantName}-eks-node-role'
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        - "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+        - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+      Tags:
+        - Key: Type
+          Value: 'Application-Plain'
+        - Key: TenantName
+          Value: !Sub '${TenantName}'
+        - Key: Name
+          Value: !Sub '${SystemName}-eks-node-role'
+
+  ApplicationNodeGroup:
+    Type: 'AWS::EKS::Nodegroup'
+    DependsOn: EKSCluster
+    Properties:
+      ClusterName: !Ref EKSCluster
+      NodegroupName: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
+      NodeRole: !GetAtt DevOpsSaasEKSNodeRole.Arn
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      ScalingConfig:
+        DesiredSize: 2
+        MinSize: 1
+        MaxSize: 3
+      Labels:
+        node-type: application
+      DiskSize: 20
+      InstanceTypes: ['t3.small']
+      AmiType: 'AL2_x86_64'
+      CapacityType: 'SPOT'
+      Tags:
+        - Key: Type
+          Value: 'Application-Plain'
+        - Key: TenantName
+          Value: !Sub '${TenantName}'
+        - Key: Name
+          Value: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
+
+Outputs:
+  TenantName:
+    Description: 'Tenant Name'
+    Value: !Ref TenantName
+  EksClusterNodeRole:
+    Description: 'EKS Cluster Node group Role Name'
+    Value: !Ref DevOpsSaasEKSNodeRole
+  ApplicationNodeGroupName:
+    Description: 'The name of the second EKS node group'
+    Value: !Ref ApplicationNodeGroup
