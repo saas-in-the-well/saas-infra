@@ -1,24 +1,25 @@
 #!/bin/bash
 
 # 클러스터 이름 지정
-export PREFIX_NAME="devops-saas-cloudformation-"
+export PREFIX_NAME="saas-control-plain-"
 export NOW_DATE=$(date +%m%d)
+export CLUSTER_NAME="${PREFIX_NAME}${NOW_DATE}-eks-cluster"
 
+echo "Updating AWS EKS kubeconfig for cluster: $CLUSTER_NAME..."
+
+# Update kubeconfig using the variable
+aws eks update-kubeconfig --region ap-northeast-2 --name $CLUSTER_NAME
 
 echo " ----- [Control Plain] provisioning Starting... ----- "
 
 # 전처리
-#chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/saas/control-plain/before-setting.sh
 ./before-setting.sh
-
-#chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/saas/control-plain/argoCD.sh
+# argoCD 설치 및 설정
 ./argoCD.sh
 
-
-sleep 10
+sleep 20
 
 # 후처리
-#chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/saas/control-plain/after-setting.sh
 ./after-setting.sh
 
 echo " ----- [Control Plain] provisioning End !!! ----- "

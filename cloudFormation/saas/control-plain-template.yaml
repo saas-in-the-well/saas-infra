@@ -4,12 +4,12 @@ Description: 'SaaS Control Plain template'
 Parameters:
   SystemName:
     Type: String
-    Default: devops-saas-cloudformation-0603
+    Default: saas-control-plain-0611
     Description: 'Prefix for all resources'
 
   SystemNameNoDate:
     Type: String
-    Default: devops-saas-cloudformation
+    Default: saas-control-plain
     Description: 'Prefix for all resources'
 
 Resources:
@@ -271,10 +271,8 @@ Resources:
       AmiType: 'AL2_x86_64'
       CapacityType: 'SPOT'
       Tags:
-        - Key: Type
-          Value: 'Control-Plain'
-        - Key: Name
-          Value: !Sub '${SystemNameNoDate}-ManagementNodeGroup'
+        Type: 'Control-Plain'
+        Name: !Sub '${SystemNameNoDate}-ManagementNodeGroup'
 
   KubeProxyAddOn:
     Type: 'AWS::EKS::Addon'
@@ -300,7 +298,7 @@ Resources:
       ClusterName: !Ref EKSCluster
       AddonVersion: 'v1.11.1-eksbuild.9'
       ResolveConflicts: 'OVERWRITE'
-    DependsOn: ApplicationNodeGroup
+    DependsOn: ManagementNodeGroup
 
   CloudWatchObservabilityAddOn:
     Type: 'AWS::EKS::Addon'
@@ -363,6 +361,3 @@ Outputs:
   ManagementNodeGroupName:
     Description: 'The name of the first EKS node group'
     Value: !Ref ManagementNodeGroup
-  ApplicationNodeGroupName:
-    Description: 'The name of the second EKS node group'
-    Value: !Ref ApplicationNodeGroup

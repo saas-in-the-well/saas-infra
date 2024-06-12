@@ -1,0 +1,50 @@
+# management 프로젝트 생성
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: manage-project
+  namespace: argocd
+spec:
+  description: Management project
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceBlacklist:
+    - group: '*'
+      kind: 'ResourceQuota'
+  roles:
+    - name: admin
+      description: Full access to management project
+      policies:
+        - p, role:admin, applications, get, management/*, allow
+        - p, role:admin, applications, create, management/*, allow
+        - p, role:admin, applications, update, management/*, allow
+        - p, role:admin, applications, delete, management/*, allow
+      groups:
+        - admin
+
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: manage-application
+  namespace: argocd
+spec:
+  project: manage-project
+  source:
+    repoURL: 'https://github.com/saas-in-the-well/saas-kubernetes.git'
+    targetRevision: develop
+    path: kube/saas/control-plain
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: manage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

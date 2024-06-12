@@ -14,12 +14,36 @@ kubectl apply -f argoCD-install.yaml --namespace=argocd
 #echo "Patching ArgoCD service to be accessible externally..."
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 
-# Check ArgoCD server service
-echo "Checking ArgoCD server service..."
-kubectl get svc argocd-server -n argocd
-
 # echo "ArgoCD setup complete."
 
-# secret 추가
-kubectl create secret docker-registry ecr-registry --docker-server=https://794187215716.dkr.ecr.ap-northeast-2.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password) --docker-email=hyeongwon.lee@bespinglobal.com --namespace=saas
 
+###### argoCD 계정 생성
+
+# Define the patch to apply
+PATCH_STRING='{"data":{"accounts.hyeongwon":"login","accounts.jaeho":"login","accounts.seongjin":"login","dex.config":"connectors:\n- type: github\n  id: github\n  name: GitHub\n  config:\n    clientID: Ov23ctyIgYBEfYekxFjt\n    clientSecret: 9a0cceecaf3f82dce2bf0617ec190765f6890097\n    orgs:\n    - name: saas-in-the-well\nredirectURI: https://argocd.jumpsoft.store/dex/callback"}}'
+kubectl patch configmap argocd-cm -n argocd --type merge -p "$PATCH_STRING"
+echo "ConfigMap 'argocd-cm' updated successfully."
+
+# Update secret in ArgoCD namespace
+kubectl patch secret argocd-secret -n argocd --type='json' -p='[
+    {"op": "add", "path": "/data/accounts.hyeongwon.password", "value": "JDJiJDEyJGIwRzREWVIwSWppQ3hPZU51YWRmemVhZmo5cWJ3QXdDaC5OZHlOdXpUcWJGOHYxR2VXeGFT"},
+    {"op": "add", "path": "/data/accounts.jaeho.password", "value": "JDJiJDEyJGIwRzREWVIwSWppQ3hPZU51YWRmemVhZmo5cWJ3QXdDaC5OZHlOdXpUcWJGOHYxR2VXeGFT"},
+    {"op": "add", "path": "/data/accounts.seongjin.password", "value": "JDJiJDEyJGIwRzREWVIwSWppQ3hPZU51YWRmemVhZmo5cWJ3QXdDaC5OZHlOdXpUcWJGOHYxR2VXeGFT"}
+]'
+echo "Secret 'argocd-secret' updated successfully."
+
+
+# Apply patch to ConfigMap
+#kubectl patch configmap argocd-rbac-cm -n argocd --type merge -p '{"data":{"policy.default":"role:readonly"}}'
+kubectl patch configmap argocd-rbac-cm -n argocd --type merge -p '{
+  "data": {
+    "policy.csv": "p, role:admin, applications, *, */*, allow\ng, admin, role:admin\ng, hyeongwon, role:admin\ng, jaeho, role:admin\np, role:appManager, applications, get, app1/*, allow",
+    "policy.default": "role:readonly"
+  }
+}'
+
+echo "ConfigMap 'argocd-rbac-cm' updated successfully."
+
+
+# 프로젝트 및 어플리케이션 생성
+kubectl apply -f argoCD-admin-config.yaml

@@ -4,18 +4,43 @@ Description: 'SaaS Application Plain template'
 Parameters:
   SystemName:
     Type: String
-    Default: devops-saas-cloudformation-0603
+    Default: saas-application-plain-0611
     Description: 'Prefix for all resources'
 
   SystemNameNoDate:
     Type: String
-    Default: devops-saas-cloudformation
+    Default: saas-application-plain
     Description: 'Prefix for all resources'
 
   TenantName:
     Type: String
-    Default: TenantAAA
+    Default: tenant-hotel-seoul
     Description: 'Tenanat Name'
+
+  ControlPlainEksClusterName:
+    Type: String
+    Default: saas-control-plain-0612-eks-cluster
+    Description: 'Control-plain-eks-cluster-name'
+
+  ControlPlainPublicSubnet1:
+    Type: String
+    Default: subnet-0d3fe393e55e3d0e0
+    Description: 'Control-Plain Public Subnet Name 1'
+
+  ControlPlainPublicSubnet2:
+    Type: String
+    Default: subnet-0c27b2865555418a9
+    Description: 'Control-Plain Public Subnet Name 2'
+
+  ControlPlainPrivateSubnet1:
+    Type: String
+    Default: subnet-0e1e572a812c1ce1c
+    Description: 'Control-Plain Private Subnet Name 1'
+
+  ControlPlainPrivateSubnet2:
+    Type: String
+    Default: subnet-0eb0f50a03bc3ff30
+    Description: 'Control-Plain Private Subnet Name 2'
 
 Resources:
 
@@ -46,33 +71,30 @@ Resources:
 
   ApplicationNodeGroup:
     Type: 'AWS::EKS::Nodegroup'
-    DependsOn: EKSCluster
+    DependsOn: DevOpsSaasEKSNodeRole
     Properties:
-      ClusterName: !Ref EKSCluster
+      ClusterName: !Sub ${ControlPlainEksClusterName}
       NodegroupName: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
       NodeRole: !GetAtt DevOpsSaasEKSNodeRole.Arn
       Subnets:
-        - !Ref PublicSubnet1
-        - !Ref PublicSubnet2
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
+        - !Sub '${ControlPlainPublicSubnet1}'
+        - !Sub '${ControlPlainPublicSubnet2}'
+        - !Sub '${ControlPlainPrivateSubnet1}'
+        - !Sub '${ControlPlainPrivateSubnet2}'
       ScalingConfig:
         DesiredSize: 2
         MinSize: 1
         MaxSize: 3
       Labels:
-        node-type: application
+        node-type: application # 이 부분을 테넌트로 변경하고 menifest에도 변경 적용 필요.
       DiskSize: 20
       InstanceTypes: ['t3.small']
       AmiType: 'AL2_x86_64'
       CapacityType: 'SPOT'
       Tags:
-        - Key: Type
-          Value: 'Application-Plain'
-        - Key: TenantName
-          Value: !Sub '${TenantName}'
-        - Key: Name
-          Value: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
+        Type: 'Application-Plain'
+        Name: !Sub '${SystemNameNoDate}-ApplicationNodeGroup'
+        TenantName: !Sub '${TenantName}'
 
 Outputs:
   TenantName:
