@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e
 
-export CLUSTER_NAME="${PREFIX_NAME}${NOW_DATE}-eks-cluster"
-export PREFIX_NAME="devops-saas-cloudformation"
-
-echo "Updating AWS EKS kubeconfig for cluster: $CLUSTER_NAME..."
-
 # Update kubeconfig using the variable
 aws eks update-kubeconfig --region ap-northeast-2 --name $CLUSTER_NAME
 

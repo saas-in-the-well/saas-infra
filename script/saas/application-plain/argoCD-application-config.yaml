@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tenants
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: tenant-hotel-busan
+  template:
+    metadata:
+      name: '{{name}}-project'
+    spec:
+      project: '{{name}}-project'
+      source:
+        repoURL: 'https://github.com/saas-in-the-well/saas-kubernetes.git'
+        targetRevision: develop
+        path: 'environments/{{name}}'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{name}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+

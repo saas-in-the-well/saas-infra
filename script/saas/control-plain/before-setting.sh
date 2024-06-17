@@ -2,7 +2,7 @@
 set -e
 
 # management에 필요한 namespace 생성
-echo "Creating namespaces..."
+echo "############ before-setting.sh ############ >>>>> Creating namespaces..."
 kubectl create namespace manage
 kubectl create namespace argocd
 kubectl create namespace monitoring

@@ -1,12 +1,17 @@
 #!/bin/bash
 
 # 클러스터 이름 지정
-export PREFIX_NAME="devops-saas-control-plain-"
-export NOW_DATE=$(date +%m%d)
+export PREFIX_NAME="saas-control-plain-"
+#export NOW_DATE=$(date +%m%d)
+export NOW_DATE=0612
+export CLUSTER_NAME="${PREFIX_NAME}${NOW_DATE}-eks-cluster"
+
+echo "Updating AWS EKS kubeconfig for cluster: $CLUSTER_NAME..."
+
 export TENANT_NAME=tenant-hotel-seoul
 
-
-echo " ##### [Application Plain] provisioning Starting... ##### "
+echo " ##### [Application Plain] tenant name is [${TENANT_NAME}] ##### "
+echo " ##### provisioning Starting... ##### "
 
 # 전처리
 #chmod +x /Users/jaeho.lee/workspace/saasfication/saas-infra/script/saas/application-plain/before-setting.sh
