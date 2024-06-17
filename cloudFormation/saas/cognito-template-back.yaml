@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SaaS Control Plain template'
+
+Parameters:
+  SystemName:
+    Type: String
+    Default: saas-control-plain-0613
+    Description: 'Prefix for all resources'
+
+  SystemNameNoDate:
+    Type: String
+    Default: saas-control-plain
+    Description: 'Prefix for all resources'
+
+  RegionName:
+    Type: String
+    Default: ap-northeast-2
+    Description: 'Default Region'
+
+  DomainPrefix:
+    Type: String
+    Default: jumpsoft
+    Description: 'Prefix for Cognito User Pool Domain'
+
+  HostingPrefix:
+    Type: String
+    Default: https://www.jumpsoft.shop
+    Description: 'Prefix for website URLs'
+
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${SystemName}-user-pool'
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      MfaConfiguration: 'OFF'
+      UserPoolAddOns:
+        AdvancedSecurityMode: 'OFF'
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        UnusedAccountValidityDays: 7
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub '${SystemName}-app-client'
+      UserPoolId: !Ref CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+        - USER_PASSWORD_AUTH
+      GenerateSecret: false
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - !Join [ '', [ !Ref HostingPrefix, '/callback' ] ]
+      LogoutURLs:
+        - !Join [ '', [ !Ref HostingPrefix, '/logout' ] ]
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - phone
+      AllowedOAuthFlowsUserPoolClient: true
+
+  CognitoDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref DomainPrefix
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/${SystemNameNoDate}/CognitoUserPoolId'
+      Type: String
+      Value: !Ref CognitoUserPool
+
+  CognitoUserPoolClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/${SystemNameNoDate}/CognitoUserPoolClientId'
+      Type: String
+      Value: !Ref CognitoUserPoolClient
+
+  CognitoUserPoolHostingUIParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/${SystemNameNoDate}/CognitoUserPoolHostingUI'
+      Type: String
+      Value: !Join [ '', [
+        'https://', !Ref DomainPrefix, '.auth.', !Ref RegionName,
+        '.amazoncognito.com/login?client_id=', !Ref CognitoUserPoolClient,
+        '&response_type=code&scope=email+openid+phone&redirect_uri=', !Ref HostingPrefix, '/callback' ] ]
+
+Outputs:
+  CognitoUserPoolId:
+    Description: 'Cognito User Pool ID'
+    Value: !Ref CognitoUserPool
+  CognitoUserPoolClientId:
+    Description: 'Cognito User Pool Client ID'
+    Value: !Ref CognitoUserPoolClient
