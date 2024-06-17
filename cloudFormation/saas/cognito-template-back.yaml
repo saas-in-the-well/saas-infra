@@ -12,6 +12,11 @@ Parameters:
     Default: saas-control-plain
     Description: 'Prefix for all resources'
 
+  RegionName:
+    Type: String
+    Default: ap-northeast-2
+    Description: 'Default Region'
+
   DomainPrefix:
     Type: String
     Default: jumpsoft
@@ -72,9 +77,9 @@ Resources:
       SupportedIdentityProviders:
         - COGNITO
       CallbackURLs:
-        - !Join ['', [!Ref HostingPrefix, '/callback']]
+        - !Join [ '', [ !Ref HostingPrefix, '/callback' ] ]
       LogoutURLs:
-        - !Join ['', [!Ref HostingPrefix, '/logout']]
+        - !Join [ '', [ !Ref HostingPrefix, '/logout' ] ]
       AllowedOAuthFlows:
         - code
       AllowedOAuthScopes:
@@ -89,6 +94,29 @@ Resources:
       Domain: !Ref DomainPrefix
       UserPoolId: !Ref CognitoUserPool
 
+  CognitoUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/${SystemNameNoDate}/CognitoUserPoolId'
+      Type: String
+      Value: !Ref CognitoUserPool
+
+  CognitoUserPoolClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/${SystemNameNoDate}/CognitoUserPoolClientId'
+      Type: String
+      Value: !Ref CognitoUserPoolClient
+
+  CognitoUserPoolHostingUIParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/${SystemNameNoDate}/CognitoUserPoolHostingUI'
+      Type: String
+      Value: !Join [ '', [
+        'https://', !Ref DomainPrefix, '.auth.', !Ref RegionName,
+        '.amazoncognito.com/login?client_id=', !Ref CognitoUserPoolClient,
+        '&response_type=code&scope=email+openid+phone&redirect_uri=', !Ref HostingPrefix, '/callback' ] ]
 
 Outputs:
   CognitoUserPoolId:
