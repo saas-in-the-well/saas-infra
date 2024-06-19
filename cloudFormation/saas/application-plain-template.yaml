@@ -4,7 +4,7 @@ Description: 'SaaS Application Plain template'
 Parameters:
   SystemName:
     Type: String
-    Default: saas-application-plain-0611
+    Default: saas-application-plain-0612
     Description: 'Prefix for all resources'
 
   SystemNameNoDate:
@@ -24,22 +24,22 @@ Parameters:
 
   ControlPlainPublicSubnet1:
     Type: String
-    Default: subnet-0d3fe393e55e3d0e0
+    Default: subnet-078c5f66b33c07682
     Description: 'Control-Plain Public Subnet Name 1'
 
   ControlPlainPublicSubnet2:
     Type: String
-    Default: subnet-0c27b2865555418a9
+    Default: subnet-024eddeaf081acb7a
     Description: 'Control-Plain Public Subnet Name 2'
 
   ControlPlainPrivateSubnet1:
     Type: String
-    Default: subnet-0e1e572a812c1ce1c
+    Default: subnet-034dc0f84edcffd43
     Description: 'Control-Plain Private Subnet Name 1'
 
   ControlPlainPrivateSubnet2:
     Type: String
-    Default: subnet-0eb0f50a03bc3ff30
+    Default: subnet-0fd5d5b0fbd9a23f4
     Description: 'Control-Plain Private Subnet Name 2'
 
 Resources:

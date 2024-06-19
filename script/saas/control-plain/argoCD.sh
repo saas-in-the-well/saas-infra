@@ -27,6 +27,8 @@ PATCH_STRING='{"data":{"accounts.hyeongwon":"login","accounts.jaeho":"login","ac
 kubectl patch configmap argocd-cm -n argocd --type merge -p "$PATCH_STRING"
 echo "############ argoCD.sh ############ >>>>> ConfigMap 'argocd-cm' updated successfully."
 
+sleep 2
+
 # Update secret in ArgoCD namespace
 kubectl patch secret argocd-secret -n argocd --type='json' -p='[
     {"op": "add", "path": "/data/accounts.hyeongwon.password", "value": "JDJiJDEyJGIwRzREWVIwSWppQ3hPZU51YWRmemVhZmo5cWJ3QXdDaC5OZHlOdXpUcWJGOHYxR2VXeGFT"},
@@ -35,6 +37,7 @@ kubectl patch secret argocd-secret -n argocd --type='json' -p='[
 ]'
 echo "############ argoCD.sh ############ >>>>> Secret 'argocd-secret' updated successfully."
 
+sleep 2
 
 # Apply patch to ConfigMap
 #kubectl patch configmap argocd-rbac-cm -n argocd --type merge -p '{"data":{"policy.default":"role:readonly"}}'

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export PREFIX_NAME="saas-control-plain-"
-export NOW_DATE=0612
+export NOW_DATE=$(date +%m%d)
 export CLUSTER_NAME="${PREFIX_NAME}${NOW_DATE}-eks-cluster"
 
 echo "############ _control-plain.sh ############ >>>>> Updating AWS EKS kubeconfig for cluster: $CLUSTER_NAME..."
